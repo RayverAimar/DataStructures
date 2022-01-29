@@ -46,6 +46,7 @@ void CStack<T>::push(T x){
 
 template<class T>
 void CStack<T>::pop(){
+    if(empty()) return;
     CNode<T>* to_delete{m_top};
     m_top = m_top->m_prev;
     delete to_delete;
