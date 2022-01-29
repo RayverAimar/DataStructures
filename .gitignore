@@ -2,12 +2,8 @@
 *.o
 *.obj
 
-# Compiled Static libraries
-*.lib
-
 # Executables
 *.exe
-*.out
 
 # Folders
 .vscode
