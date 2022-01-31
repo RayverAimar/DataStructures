@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <queue>
+#include <utility>
 
 using namespace std;
 
@@ -51,10 +53,14 @@ struct CBinTree{
     void podar(CNode<T>* p, int n);
     void levels(CNode<T>* p);
 
-    //Traversal
+    //Traversal functions
     void pre_order(CNode<T>* n);
     void in_order(CNode<T>* n);
     void post_order(CNode<T>* n);
+    void reverse_order(CNode<T>* n);
+    
+    //Printing functions
+    void print_levels(CNode<T>* n);
 
     //Getters
     CNode<T>* get_root();
@@ -109,7 +115,6 @@ bool CBinTree<T>::remove(T x){
     *p = (*p)->m_children[ (*p)->m_children[1] != 0 ];
     delete temp;
     return 1;
-
 }
 
 template<class T>
@@ -136,17 +141,63 @@ void CBinTree<T>::post_order(CNode<T>* n){
     cout << n->m_v<<" ";
 }
 
+template<class T>
+void CBinTree<T>::reverse_order(CNode<T>* n){
+    if(!n) return;
+    reverse_order(n->m_children[1]);
+    cout << n->m_v<<" ";
+    reverse_order(n->m_children[0]);
+}
+
+/**
+template<class T>
+void CBinTree<T>::print_levels(CNode<T>* n){
+    queue<CNode<T>*> q;
+    q.push(n);
+    while(!q.empty()){
+        cout<<q.front()->m_v<<" ";
+        if(q.front()->m_children[0]) q.push(q.front()->m_children[0]);
+        if(q.front()->m_children[1]) q.push(q.front()->m_children[1]);
+        q.pop();
+    }
+}*/
+
+/**
+template<class T>
+void CBinTree<T>::print_levels(CNode<T>* n){
+    queue<pair<CNode<T>*, int>> q;
+    int deep{0};
+    q.push({n, deep});
+    while(!q.empty()){
+        CNode<T>* t = q.front().first;
+        int lvl = q.front().second;
+        q.pop();
+        if(lvl != deep) cout<<endl;
+        if(t){
+            cout<<t->m_v<<" ";
+            q.push({t->m_children[0], lvl + 1});
+            q.push({t->m_children[1], lvl + 1});
+        }
+        deep = lvl;
+    }
+}*/
+
+template<class T>
+void CBinTree<T>::print_levels(CNode<T>* n){
+    queue<pair<CNode<T>*, int>> q;
+}
 
 int main(){
     CBinTree<int> myTree;
     myTree.insert(13);
     myTree.insert(27);
-    myTree.insert(23);
-    myTree.insert(6);
-    myTree.insert(1);
-    myTree.insert(8);
+    myTree.insert(10);
+    myTree.insert(19);
+    myTree.insert(5);
+    myTree.insert(30);
+    myTree.insert(11);
     myTree.in_order(myTree.get_root());
     cout<<endl;
-    myTree.pre_order(myTree.get_root());
+    myTree.print_levels(myTree.get_root());
 
 }
