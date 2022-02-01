@@ -3,6 +3,8 @@
 #include <ctime>
 #include <queue>
 #include <utility>
+#include <cmath>
+#include <iomanip>
 
 using namespace std;
 
@@ -12,18 +14,18 @@ using namespace std;
 template<class T>
 struct CNode{
     T m_v;
-    int level;
+    //int level;
     CNode<T>* m_children[2];
 
     //Constructors
-    CNode(T _v, int _level);
+    //CNode(T _v, int _level);
     CNode(T _v);
 };
-
+/**
 template<class T>
 CNode<T>::CNode(T _v, int _level): m_v(_v), level(_level){
     m_children[0] = m_children[1] = 0;
-}
+}*/
 
 template<class T>
 CNode<T>::CNode(T _v): m_v(_v){
@@ -48,8 +50,6 @@ struct CBinTree{
     bool findN(T x, CNode<T>** &p, int &n);
     void redN(CNode<T>*p);
     void printN(CNode<T>* p, int n, int& esp, int &temp);
-    int update(CNode<T>* p);
-    void updt_altura();
     void podar(CNode<T>* p, int n);
     void levels(CNode<T>* p);
 
@@ -61,13 +61,15 @@ struct CBinTree{
     
     //Printing functions
     void print_levels(CNode<T>* n);
+    void print_tree(CNode<T>* n);
+    void print_node(pair<CNode<T>*, int> n, int lvl, int &spaces, int height);
 
     //Getters
     CNode<T>* get_root();
     CNode<T>** get_nearest_CNode(CNode<T>** p);
+    int getMaxDepth(CNode<T>* n);
 
 private:
-   int height, tab;
    CNode<T>* m_root;
 };
 
@@ -149,55 +151,67 @@ void CBinTree<T>::reverse_order(CNode<T>* n){
     reverse_order(n->m_children[0]);
 }
 
-/**
 template<class T>
-void CBinTree<T>::print_levels(CNode<T>* n){
-    queue<CNode<T>*> q;
-    q.push(n);
-    while(!q.empty()){
-        cout<<q.front()->m_v<<" ";
-        if(q.front()->m_children[0]) q.push(q.front()->m_children[0]);
-        if(q.front()->m_children[1]) q.push(q.front()->m_children[1]);
-        q.pop();
-    }
-}*/
-
-/**
-template<class T>
-void CBinTree<T>::print_levels(CNode<T>* n){
+void CBinTree<T>::print_levels(CNode<T>* n){ //My implementation
+    if(!m_root) return;
     queue<pair<CNode<T>*, int>> q;
-    int deep{0};
-    q.push({n, deep});
+    int current_lvl{0};
+    q.push({n, current_lvl});
     while(!q.empty()){
-        CNode<T>* t = q.front().first;
-        int lvl = q.front().second;
-        q.pop();
-        if(lvl != deep) cout<<endl;
-        if(t){
-            cout<<t->m_v<<" ";
-            q.push({t->m_children[0], lvl + 1});
-            q.push({t->m_children[1], lvl + 1});
+        if(q.front().first){
+            if(q.front().second != current_lvl){ cout << endl; current_lvl++; }
+            cout<< q.front().first->m_v<<" ";
+            q.push({q.front().first->m_children[0], q.front().second + 1});
+            q.push({q.front().first->m_children[1], q.front().second + 1});            
         }
-        deep = lvl;
+        q.pop();
     }
-}*/
+}
 
 template<class T>
-void CBinTree<T>::print_levels(CNode<T>* n){
-    queue<pair<CNode<T>*, int>> q;
+int CBinTree<T>::getMaxDepth(CNode<T>* n){
+    return !n ? 0 : 1 + max(getMaxDepth(n->m_children[0]), getMaxDepth(n->m_children[1]));
 }
+
+template<class T>
+void CBinTree<T>::print_node(pair<CNode<T>*, int> n, int lvl, int &spaces, int height){
+    if(n.second == lvl){
+        cout<<setw(spaces)<<n.first->m_v;
+        spaces*=2;
+        return;
+    }
+    if(n.first->m_children[0]) print_node({n.first->m_children[0], n.second+1}, lvl, spaces, height);
+    else if(n.second <= lvl - 1) spaces = spaces + (2*(pow(2, height - lvl)) + 2);
+    if(n.first->m_children[1]) print_node({n.first->m_children[1], n.second+1}, lvl, spaces, height);
+    else if(n.second <= lvl - 1) spaces = spaces + (2*(pow(2, height - lvl)) + 2);
+}
+
+template<class T>
+void CBinTree<T>::print_tree(CNode<T>* n){
+    int depth = getMaxDepth(m_root);
+    for(int i = 1; i <= depth; i++){
+        int spaces = pow(2, depth - (i-1) - 1); 
+        print_node({m_root, 1}, i, spaces, depth);
+        cout<<"\n";
+    }
+}
+
 
 int main(){
     CBinTree<int> myTree;
     myTree.insert(13);
     myTree.insert(27);
-    myTree.insert(10);
-    myTree.insert(19);
-    myTree.insert(5);
-    myTree.insert(30);
     myTree.insert(11);
+    myTree.insert(19);
+    myTree.insert(10);
+    myTree.insert(30);
+    myTree.insert(12);
+    myTree.insert(28);
     myTree.in_order(myTree.get_root());
     cout<<endl;
     myTree.print_levels(myTree.get_root());
+    cout<<endl<<myTree.getMaxDepth(myTree.get_root());
+    cout<<endl;
+    myTree.print_tree(myTree.get_root());
 
 }
