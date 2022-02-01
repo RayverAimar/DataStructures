@@ -18,14 +18,8 @@ struct CNode{
     CNode<T>* m_children[2];
 
     //Constructors
-    //CNode(T _v, int _level);
     CNode(T _v);
 };
-/**
-template<class T>
-CNode<T>::CNode(T _v, int _level): m_v(_v), level(_level){
-    m_children[0] = m_children[1] = 0;
-}*/
 
 template<class T>
 CNode<T>::CNode(T _v): m_v(_v){
@@ -47,11 +41,7 @@ struct CBinTree{
     bool remove(T x);
 
     //Secondary functions
-    bool findN(T x, CNode<T>** &p, int &n);
-    void redN(CNode<T>*p);
-    void printN(CNode<T>* p, int n, int& esp, int &temp);
     void podar(CNode<T>* p, int n);
-    void levels(CNode<T>* p);
 
     //Traversal functions
     void pre_order(CNode<T>* n);
@@ -174,24 +164,24 @@ int CBinTree<T>::getMaxDepth(CNode<T>* n){
 }
 
 template<class T>
-void CBinTree<T>::print_node(pair<CNode<T>*, int> n, int lvl, int &spaces, int height){
-    if(n.second == lvl){
+void CBinTree<T>::print_node(pair<CNode<T>*, int> n, int current_depth, int &spaces, int height){
+    if(n.second == current_depth){
         cout<<setw(spaces)<<n.first->m_v;
-        spaces*=2;
+        spaces = pow(2, height - (current_depth-2));
         return;
     }
-    if(n.first->m_children[0]) print_node({n.first->m_children[0], n.second+1}, lvl, spaces, height);
-    else if(n.second <= lvl - 1) spaces = spaces + (2*(pow(2, height - lvl)) + 2);
-    if(n.first->m_children[1]) print_node({n.first->m_children[1], n.second+1}, lvl, spaces, height);
-    else if(n.second <= lvl - 1) spaces = spaces + (2*(pow(2, height - lvl)) + 2);
+    if(n.first->m_children[0]) print_node({n.first->m_children[0], n.second+1}, current_depth, spaces, height);
+    else if(n.second <= current_depth - 1) spaces = spaces + pow(2, height - n.second + 1);
+    if(n.first->m_children[1]) print_node({n.first->m_children[1], n.second+1}, current_depth, spaces, height);
+    else if(n.second <= current_depth - 1) spaces = spaces + pow(2, height - n.second + 1);
 }
 
 template<class T>
 void CBinTree<T>::print_tree(CNode<T>* n){
-    int depth = getMaxDepth(m_root);
-    for(int i = 1; i <= depth; i++){
-        int spaces = pow(2, depth - (i-1) - 1); 
-        print_node({m_root, 1}, i, spaces, depth);
+    int height = getMaxDepth(n);
+    for(int current_depth = 1; current_depth <= height; current_depth++){
+        int spaces = pow(2, height - (current_depth-1)) + 1;
+        print_node({n, 1}, current_depth, spaces, height);
         cout<<"\n";
     }
 }
@@ -199,19 +189,40 @@ void CBinTree<T>::print_tree(CNode<T>* n){
 
 int main(){
     CBinTree<int> myTree;
+    myTree.insert(50);
+    myTree.insert(25);
+    myTree.insert(75);
     myTree.insert(13);
-    myTree.insert(27);
+    myTree.insert(62);
+    myTree.insert(87);
     myTree.insert(11);
-    myTree.insert(19);
-    myTree.insert(10);
-    myTree.insert(30);
-    myTree.insert(12);
-    myTree.insert(28);
-    myTree.in_order(myTree.get_root());
-    cout<<endl;
+    myTree.insert(17);
+    myTree.insert(55);
+    myTree.insert(67);
+    myTree.insert(81);
+    myTree.insert(95);
+    myTree.insert(71);
+    myTree.insert(73);
+    myTree.insert(20);
+    myTree.insert(23);
+    myTree.insert(18);
+    myTree.insert(58);
+    myTree.insert(52);
+    myTree.insert(51);
+    myTree.insert(53);
+    myTree.insert(83);
+    myTree.insert(77);
+    myTree.insert(86);
+    myTree.insert(97);
+    myTree.insert(96);
+    myTree.insert(98);
+    myTree.insert(82);
+    myTree.insert(56);
+    myTree.insert(59);
+    myTree.insert(69);
+    cout<<"Printing by levels.."<<endl;
     myTree.print_levels(myTree.get_root());
-    cout<<endl<<myTree.getMaxDepth(myTree.get_root());
-    cout<<endl;
+    cout<<endl<<"Height -> "<<myTree.getMaxDepth(myTree.get_root())<<endl;
+    cout<<setw(pow(2,6) + 9)<<"Printing Tree..."<<endl;
     myTree.print_tree(myTree.get_root());
-
 }
