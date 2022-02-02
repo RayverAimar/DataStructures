@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <list>
+#include <iomanip>
 
 using namespace std;
 
@@ -12,14 +13,14 @@ struct CEdge{
     typedef typename G::E E;
     E m_v;
     Node* m_nodes[2];
-    bool m_dir; //0 node[0] -> node[1] / 1 node[0] <-> node[1]
+    bool m_bidir; //0 node[0] -> node[1] / 1 node[0] <-> node[1]
 
     //Constructor
     CEdge(E e,Node* a, Node* b, bool dir){
         m_v = e;
         m_nodes[0] = a;
         m_nodes[1] = b;
-        m_dir = dir;
+        m_bidir = dir;
     }
 };
 
@@ -50,8 +51,8 @@ struct CGraph{
     bool InsNode(N value);
     bool RemNode(N value);
     //Overloading InsEdge
-    bool InsEdge(E value, Node* start, Node* end, bool dir);
-    bool InsEdge(E value, N start_value, N end_value, bool dir);
+    bool InsEdge(E value, Node* start, Node* end, bool bidir);
+    bool InsEdge(E value, N start_value, N end_value, bool bidir);
     //Overloading RemEdge
     bool RemEdge(E value, Node* start, Node* end);
     bool RemEdge(E value, N start_value, N end_value);
@@ -96,23 +97,25 @@ bool CGraph<_N, _E>::InsNode(N value){
 }
 
 template<class _N, class _E>
-bool CGraph<_N, _E>::InsEdge(E value, Node* start, Node* end, bool dir){
+bool CGraph<_N, _E>::InsEdge(E value, Node* start, Node* end, bool bidir){
     Node* a = nullptr, *b = nullptr;
     if(FindNode(start->m_v, a)&& FindNode(end->m_v, b)){
-        Edge* temp = new Edge(value, a, b, dir);
-        Edge* temp1 = new Edge(value, b, a, dir);
+        Edge* temp = new Edge(value, a, b, bidir);
         a->edges.push_back(temp);
-        b->edges.push_back(temp1);
+        if(bidir){
+            Edge* temp1 = new Edge(value, b, a, bidir);
+            b->edges.push_back(temp1);
+        }
         return 1;
     }
     return 0;
 }
 
 template<class _N, class _E>
-bool CGraph<_N, _E>::InsEdge(E value, N start_value, N end_value, bool dir){
+bool CGraph<_N, _E>::InsEdge(E value, N start_value, N end_value, bool bidir){
     Node* a = new Node(start_value);
     Node* b = new Node(end_value);
-    return InsEdge(value, a, b, dir);
+    return InsEdge(value, a, b, bidir);
 }
 
 template<class _N, class _E>
@@ -157,13 +160,9 @@ void CGraph<_N, _E>::printGraph(){
     for(int i = 0; i < nodes.size(); i++){
         cout<< nodes[i]->m_v<<": ";
         for(auto it = nodes[i]->edges.begin(); it != nodes[i]->edges.end(); ++it){
-            bool temp = (*it)->m_dir;
-            if(((*it)->m_nodes[1] != nodes[i]) || !temp){
-                if(temp) cout << "-> ";
-                else cout << "<-> ";
-                cout << (*it)->m_nodes[1]->m_v;
-                cout << (*it)->m_v << " | ";
-            }
+            if((*it)->m_bidir) cout<<"<-> ";
+            else cout<<"-> ";
+            cout <<(*it)->m_nodes[1]->m_v<< left <<setw(2)<< (*it)->m_v << " | ";
         }
         cout<<"\n";
     }
@@ -232,20 +231,20 @@ int main(){
     
     for(int i = 0; i < 9; i++) myGraph.InsNode(names[i]);
 
-    myGraph.InsEdge(4, 'a', 'b', 0);
-    myGraph.InsEdge(8, 'a', 'h', 0);
-    myGraph.InsEdge(8, 'b', 'c', 0);
-    myGraph.InsEdge(11, 'b', 'h', 0);
-    myGraph.InsEdge(7, 'c', 'd', 0);
-    myGraph.InsEdge(4, 'c', 'f', 0);
-    myGraph.InsEdge(2, 'c', 'i', 0);
-    myGraph.InsEdge(9, 'd', 'e', 0);
-    myGraph.InsEdge(14, 'd', 'f', 0);
-    myGraph.InsEdge(10, 'e', 'f', 0);
-    myGraph.InsEdge(2, 'f', 'g', 0);
-    myGraph.InsEdge(6, 'g', 'i', 0);
-    myGraph.InsEdge(1, 'g', 'h', 0);
-    myGraph.InsEdge(7, 'h', 'i', 0);
+    myGraph.InsEdge(4, 'a', 'b', 1);
+    myGraph.InsEdge(8, 'a', 'h', 1);
+    myGraph.InsEdge(8, 'b', 'c', 1);
+    myGraph.InsEdge(11, 'b', 'h', 1);
+    myGraph.InsEdge(7, 'c', 'd', 1);
+    myGraph.InsEdge(4, 'c', 'f', 1);
+    myGraph.InsEdge(2, 'c', 'i', 1);
+    myGraph.InsEdge(9, 'd', 'e', 1);
+    myGraph.InsEdge(14, 'd', 'f', 1);
+    myGraph.InsEdge(10, 'e', 'f', 1);
+    myGraph.InsEdge(2, 'f', 'g', 1);
+    myGraph.InsEdge(6, 'g', 'i', 1);
+    myGraph.InsEdge(1, 'g', 'h', 1);
+    myGraph.InsEdge(7, 'h', 'i', 1);
     
     myGraph.printGraph();
 
