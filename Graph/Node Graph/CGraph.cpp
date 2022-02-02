@@ -4,6 +4,7 @@
 
 using namespace std;
 
+#define INF 1e9
 
 template<class G>
 struct CEdge{
@@ -11,7 +12,7 @@ struct CEdge{
     typedef typename G::E E;
     E m_v;
     Node* m_nodes[2];
-    bool m_dir; //0 node[0] <-> node[1] / 1 node[0] -> node[1]
+    bool m_dir; //0 node[0] -> node[1] / 1 node[0] <-> node[1]
 
     //Constructor
     CEdge(E e,Node* a, Node* b, bool dir){
@@ -29,6 +30,7 @@ struct CNode{
 
     N m_v;
     list<Edge*> edges;
+    int component;
     //Constructor
     CNode(N v) : m_v(v) {}
 };
@@ -94,12 +96,13 @@ bool CGraph<_N, _E>::InsNode(N value){
 }
 
 template<class _N, class _E>
-bool CGraph<_N, _E>::InsEdge(E value, Node* start, Node* end, bool dir){ //Error
+bool CGraph<_N, _E>::InsEdge(E value, Node* start, Node* end, bool dir){
     Node* a = nullptr, *b = nullptr;
     if(FindNode(start->m_v, a)&& FindNode(end->m_v, b)){
         Edge* temp = new Edge(value, a, b, dir);
+        Edge* temp1 = new Edge(value, b, a, dir);
         a->edges.push_back(temp);
-        b->edges.push_back(temp);
+        b->edges.push_back(temp1);
         return 1;
     }
     return 0;
@@ -156,31 +159,96 @@ void CGraph<_N, _E>::printGraph(){
         for(auto it = nodes[i]->edges.begin(); it != nodes[i]->edges.end(); ++it){
             bool temp = (*it)->m_dir;
             if(((*it)->m_nodes[1] != nodes[i]) || !temp){
-                if(temp) cout << "->";
-                else cout << "<->";
+                if(temp) cout << "-> ";
+                else cout << "<-> ";
                 cout << (*it)->m_nodes[1]->m_v;
                 cout << (*it)->m_v << " | ";
             }
         }
         cout<<"\n";
     }
+}
+
+class CGraphCharNum : public CGraph<char,int>
+{
+    public:
+    // Dijkstra
+
+    //Traversals
+    void Prim(Node* n);
+    void Kruskal();
+    void DFS();
+    void BFS();
+};
+
+void CGraphCharNum::Prim(Node* n){
+    //1. Marcar un vertice cualquiera
+    //2. Seleccionar la arista de menor peso incidente en el vértice seleccionado anteriormente y seleccionar
+    //   el siguiente vertice de llegada de la arista
+    //3. Repetir el paso dos mientras la arista enlace un vertice elegido y uno que no
+    //4. Repetir los pasos mientras todos los vertices no estén coloreados
+    
+
 
 }
 
+void CGraphCharNum::Kruskal(){
+    for(int i = 0; i < nodes.size(); i++) nodes[i]->component = i;
+    vector<Edge*> kruskal_path;
+    while(kruskal_path.size() < nodes.size() - 1){ 
+        Edge* temp = nullptr;
+        int min = INF;
+        for(int i = 0; i < nodes.size(); i++){ //Find minimum value Edge
+            for(auto it = nodes[i]->edges.begin(); it != nodes[i]->edges.end(); ++it){
+                if(min > (*it)->m_v && (*it)->m_nodes[0]->component != (*it)->m_nodes[1]->component){
+                    min = (*it)->m_v;
+                    temp = *it;
+                }
+            }
+        }
+        kruskal_path.push_back(temp);
+        int t = temp->m_nodes[1]->component;
+        for(int i = 0; i < nodes.size(); i++){ //Node[0] conquers Node[1] components
+            if(nodes[i]->component == t) nodes[i]->component = temp->m_nodes[0]->component;
+        }
+    }
+    for(int i = 0; i < kruskal_path.size(); i++){
+        cout << kruskal_path[i]->m_nodes[0]->m_v<<"-"<<kruskal_path[i]->m_v<<"-"<<kruskal_path[i]->m_nodes[1]->m_v<<"\n";
+    }
+}
+
+void CGraphCharNum::DFS(){
+    
+}
+
+void CGraphCharNum::BFS(){
+    
+}
 
 int main(){
 
-    CGraph<char, int> myGraph;    
-    std::string names = "ABCD"; 
+    CGraphCharNum myGraph;
+    std::string names = "abcdefghi"; 
     
-    for(int i = 0; i < 4; i++) myGraph.InsNode(names[i]);
+    for(int i = 0; i < 9; i++) myGraph.InsNode(names[i]);
 
-    myGraph.InsEdge(2, 'A','B',true);
-    myGraph.InsEdge(1, 'A','C',true);
-    myGraph.InsEdge(3, 'B','C',true);
-    myGraph.InsEdge(4, 'B','D',true);
-    myGraph.InsEdge(5, 'C','D',true);
-
-    cout << "Printing \n";
+    myGraph.InsEdge(4, 'a', 'b', 0);
+    myGraph.InsEdge(8, 'a', 'h', 0);
+    myGraph.InsEdge(8, 'b', 'c', 0);
+    myGraph.InsEdge(11, 'b', 'h', 0);
+    myGraph.InsEdge(7, 'c', 'd', 0);
+    myGraph.InsEdge(4, 'c', 'f', 0);
+    myGraph.InsEdge(2, 'c', 'i', 0);
+    myGraph.InsEdge(9, 'd', 'e', 0);
+    myGraph.InsEdge(14, 'd', 'f', 0);
+    myGraph.InsEdge(10, 'e', 'f', 0);
+    myGraph.InsEdge(2, 'f', 'g', 0);
+    myGraph.InsEdge(6, 'g', 'i', 0);
+    myGraph.InsEdge(1, 'g', 'h', 0);
+    myGraph.InsEdge(7, 'h', 'i', 0);
+    
     myGraph.printGraph();
+
+    cout<<endl;
+    myGraph.Kruskal();
 }
