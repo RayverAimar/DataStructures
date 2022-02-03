@@ -2,6 +2,7 @@
 #include <vector>
 #include <list>
 #include <iomanip>
+#include <queue>
 
 using namespace std;
 
@@ -168,27 +169,52 @@ void CGraph<_N, _E>::printGraph(){
     }
 }
 
-class CGraphCharNum : public CGraph<char,int>
+struct CGraphCharNum : public CGraph<char,int>
 {
-    public:
-    // Dijkstra
+    //Shortest path algorithm
+    void Dijkstra(N start, N end);
 
-    //Traversals
-    void Prim(Node* n);
+    //Minimum Spanning Tree Algorithms
+    void Prim(N node_value);
     void Kruskal();
+
+    //Searchs
     void DFS();
     void BFS();
+
 };
 
-void CGraphCharNum::Prim(Node* n){
-    //1. Marcar un vertice cualquiera
-    //2. Seleccionar la arista de menor peso incidente en el vértice seleccionado anteriormente y seleccionar
-    //   el siguiente vertice de llegada de la arista
-    //3. Repetir el paso dos mientras la arista enlace un vertice elegido y uno que no
-    //4. Repetir los pasos mientras todos los vertices no estén coloreados
-    
+void CGraphCharNum::Dijkstra(N start, N end){
 
+}
 
+void CGraphCharNum::Prim(N value){
+    Node* p = nullptr;
+    if(!FindNode(value, p)) return;
+    for(int i = 0; i < nodes.size(); i++) nodes[i]->component = 0;
+    vector<Node*> visited_nodes;
+    vector<Edge*> prim_path;
+    p->component = 1;
+    visited_nodes.push_back(p);
+    while(visited_nodes.size() != nodes.size()){
+        Edge* temp = nullptr;
+        int min = INF;
+        //Find the minimum value Edge between all nodes already visited
+        for(int i = 0; i < visited_nodes.size(); i++){
+            for(auto it = visited_nodes[i]->edges.begin(); it != visited_nodes[i]->edges.end(); ++it){
+                if(min > (*it)->m_v && (*it)->m_nodes[1]->component == 0){
+                min = (*it)->m_v;
+                temp = *it;
+                }
+            }
+        }
+        temp->m_nodes[1]->component = 1;
+        visited_nodes.push_back(temp->m_nodes[1]);
+        prim_path.push_back(temp);
+    }
+    for(int i = 0; i < prim_path.size(); i++){
+        cout << prim_path[i]->m_nodes[0]->m_v<<"-"<<prim_path[i]->m_v<<"-"<<prim_path[i]->m_nodes[1]->m_v<<"\n";
+    }
 }
 
 void CGraphCharNum::Kruskal(){
@@ -224,6 +250,7 @@ void CGraphCharNum::BFS(){
     
 }
 
+
 int main(){
 
     CGraphCharNum myGraph;
@@ -249,5 +276,5 @@ int main(){
     myGraph.printGraph();
 
     cout<<endl;
-    myGraph.Kruskal();
+    myGraph.Prim('a');
 }
