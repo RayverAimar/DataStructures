@@ -180,7 +180,7 @@ struct CGraphCharNum : public CGraph<char,int>
 
     //Searchs
     void DFS();
-    void BFS();
+    void BFS(N node_value);
 
 };
 
@@ -246,8 +246,24 @@ void CGraphCharNum::DFS(){
     
 }
 
-void CGraphCharNum::BFS(){
-    
+void CGraphCharNum::BFS(N node_value){
+    for(int i = 0; i < nodes.size(); i++) nodes[i]->component = -1;
+    Node* p = nullptr;
+    if(!FindNode(node_value, p)) return;
+    p->component = 0;
+    queue<Node*> Q;
+    Q.push(p);
+    while(!Q.empty()){
+        Node* cur = Q.front();
+        Q.pop();
+        cout<< cur->m_v <<"-"<<cur->component<<"\n";
+        for(auto it = cur->edges.begin(); it != cur->edges.end(); ++it){
+            if((*it)->m_nodes[1]->component < 0 ){
+                Q.push((*it)->m_nodes[1]);
+                (*it)->m_nodes[1]->component = cur->component + 1;
+            }
+        }
+    }
 }
 
 
@@ -272,9 +288,9 @@ int main(){
     myGraph.InsEdge(6, 'g', 'i', 1);
     myGraph.InsEdge(1, 'g', 'h', 1);
     myGraph.InsEdge(7, 'h', 'i', 1);
-    
+
     myGraph.printGraph();
 
-    cout<<endl;
-    myGraph.Prim('a');
+    cout<<"\n";
+    myGraph.BFS('a');
 }
