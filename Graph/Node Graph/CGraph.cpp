@@ -187,6 +187,7 @@ struct CGraphCharNum : public CGraph<char,int>
 
     //Auxiliar functions
     void dfs_visit(Node* n, int& n_visit);
+    bool missing_nodes(Node*& p);
 
 };
 
@@ -259,12 +260,23 @@ void CGraphCharNum::dfs_visit(Node* p, int& n_visit){
     p->dfs[1] = n_visit++;
 }
 
+bool CGraphCharNum::missing_nodes(Node*& p){
+    for(int i = 0; i< nodes.size(); i++){
+        if(!nodes[i]->component){
+            p = nodes[i];
+            return true;
+        }
+    }
+    return false;
+}
+
 void CGraphCharNum::DFS(N node_value){
     Node* p = nullptr;
     if(!FindNode(node_value, p)) return;
     for(int i = 0; i < nodes.size(); i++) nodes[i]->component = 0;
     int n_visit{1};
-    dfs_visit(p, n_visit);
+    do dfs_visit(p, n_visit);
+    while(missing_nodes(p));
     for(int i = 0; i < nodes.size(); i++)
         cout<<nodes[i]->m_v<<" -> "<<nodes[i]->dfs[0]<<"/"<<nodes[i]->dfs[1]<<"\n";
 }
