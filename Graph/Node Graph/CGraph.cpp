@@ -33,8 +33,11 @@ struct CNode{
     N m_v;
     list<Edge*> edges;
     int component;
+    int dfs[2];
     //Constructor
-    CNode(N v) : m_v(v) {}
+    CNode(N v) : m_v(v) {
+        dfs[0] = dfs[1] = -1;
+    }
 };
 
 template<class _N, class _E>
@@ -179,8 +182,11 @@ struct CGraphCharNum : public CGraph<char,int>
     void Kruskal();
 
     //Searchs
-    void DFS();
+    void DFS(N node_value);
     void BFS(N node_value);
+
+    //Auxiliar functions
+    void dfs_visit(Node* n, int& n_visit);
 
 };
 
@@ -242,8 +248,25 @@ void CGraphCharNum::Kruskal(){
     }
 }
 
-void CGraphCharNum::DFS(){
-    
+void CGraphCharNum::dfs_visit(Node* p, int& n_visit){
+    p->component = 1;
+    p->dfs[0] = n_visit++;
+    for(auto it = p->edges.begin(); it != p->edges.end(); ++it){ //Looking for next node
+        if((*it)->m_nodes[1] && !(*it)->m_nodes[1]->component){   
+            dfs_visit((*it)->m_nodes[1], n_visit);
+        }
+    }
+    p->dfs[1] = n_visit++;
+}
+
+void CGraphCharNum::DFS(N node_value){
+    Node* p = nullptr;
+    if(!FindNode(node_value, p)) return;
+    for(int i = 0; i < nodes.size(); i++) nodes[i]->component = 0;
+    int n_visit{1};
+    dfs_visit(p, n_visit);
+    for(int i = 0; i < nodes.size(); i++)
+        cout<<nodes[i]->m_v<<" -> "<<nodes[i]->dfs[0]<<"/"<<nodes[i]->dfs[1]<<"\n";
 }
 
 void CGraphCharNum::BFS(N node_value){
@@ -270,27 +293,27 @@ void CGraphCharNum::BFS(N node_value){
 int main(){
 
     CGraphCharNum myGraph;
-    std::string names = "abcdefghi"; 
-    
-    for(int i = 0; i < 9; i++) myGraph.InsNode(names[i]);
 
-    myGraph.InsEdge(4, 'a', 'b', 1);
-    myGraph.InsEdge(8, 'a', 'h', 1);
-    myGraph.InsEdge(8, 'b', 'c', 1);
-    myGraph.InsEdge(11, 'b', 'h', 1);
-    myGraph.InsEdge(7, 'c', 'd', 1);
-    myGraph.InsEdge(4, 'c', 'f', 1);
-    myGraph.InsEdge(2, 'c', 'i', 1);
-    myGraph.InsEdge(9, 'd', 'e', 1);
-    myGraph.InsEdge(14, 'd', 'f', 1);
-    myGraph.InsEdge(10, 'e', 'f', 1);
-    myGraph.InsEdge(2, 'f', 'g', 1);
-    myGraph.InsEdge(6, 'g', 'i', 1);
-    myGraph.InsEdge(1, 'g', 'h', 1);
-    myGraph.InsEdge(7, 'h', 'i', 1);
+    std::string names = "stuvwxyz"; 
+    
+    for(int i = 0; i < names.size(); i++) myGraph.InsNode(names[i]);
+
+    myGraph.InsEdge(1, 's', 'z', 0);
+    myGraph.InsEdge(1, 's', 'w', 0);
+    myGraph.InsEdge(1, 't', 'u', 1);
+    myGraph.InsEdge(1, 't', 'v', 0);
+    myGraph.InsEdge(1, 'u', 'v', 0);
+    myGraph.InsEdge(1, 'v', 's', 0);
+    myGraph.InsEdge(1, 'v', 'w', 0);
+    myGraph.InsEdge(1, 'w', 'x', 0);
+    myGraph.InsEdge(1, 'x', 'z', 0);
+    myGraph.InsEdge(1, 'z', 'y', 0);
+    myGraph.InsEdge(1, 'z', 'w', 0);
+    myGraph.InsEdge(1, 'y', 'x', 0);
 
     myGraph.printGraph();
 
     cout<<"\n";
-    myGraph.BFS('a');
+    myGraph.DFS('s');
+
 }
