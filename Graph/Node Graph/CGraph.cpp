@@ -3,6 +3,8 @@
 #include <list>
 #include <iomanip>
 #include <queue>
+#include <utility>
+#include <stack>
 
 using namespace std;
 
@@ -192,7 +194,45 @@ struct CGraphCharNum : public CGraph<char,int>
 };
 
 void CGraphCharNum::Dijkstra(N start, N end){
-
+    Node* _start = nullptr, *_end = nullptr;
+    if(!FindNode(start, _start) || !FindNode(end, _end)) return;
+    int pos_end{-1}; const int _size = nodes.size();
+    int** node_verifier = new int*[_size];
+    for(int i = 0; i < _size; i++){
+        node_verifier[i] = new int[2];
+        nodes[i]->component = 0;
+        node_verifier[i][0] = INF;
+        node_verifier[i][1] = -1;
+        if(nodes[i] == _start) node_verifier[i][0] = 0;
+        if(nodes[i] == _end) pos_end = i;
+    }
+    while(!_end->component){
+        int min = INF, pos_pair{-1};
+        for(int i = 0; i < _size; i++){
+            if(node_verifier[i][0] < min && !nodes[i]->component){ min = node_verifier[i][0]; pos_pair = i; }
+        }
+        nodes[pos_pair]->component = 1;
+        for(auto it = nodes[pos_pair]->edges.begin(); it != nodes[pos_pair]->edges.end(); ++it){
+            if(!(*it)->m_nodes[1]->component){
+                for(int i = 0; i < _size; i++){
+                    if(nodes[i] == (*it)->m_nodes[1]){
+                        int cur_distance = node_verifier[pos_pair][0] + (*it)->m_v;
+                        if(cur_distance < node_verifier[i][0]){ node_verifier[i][0] = cur_distance; node_verifier[i][1] = pos_pair; }
+                    }
+                }
+            }
+        }
+    }
+    stack<N> dijkstra_path;
+    dijkstra_path.push(nodes[pos_end]->m_v);
+    while(node_verifier[pos_end][1] != -1){
+        dijkstra_path.push(nodes[node_verifier[pos_end][1]]->m_v);
+        pos_end = node_verifier[pos_end][1];
+    }
+    while(!dijkstra_path.empty()){
+        cout<<dijkstra_path.top()<<" ";
+        dijkstra_path.pop();
+    }
 }
 
 void CGraphCharNum::Prim(N value){
@@ -306,26 +346,28 @@ int main(){
 
     CGraphCharNum myGraph;
 
-    std::string names = "stuvwxyz"; 
+    std::string names = "abcdefghi"; 
     
     for(int i = 0; i < names.size(); i++) myGraph.InsNode(names[i]);
 
-    myGraph.InsEdge(1, 's', 'z', 0);
-    myGraph.InsEdge(1, 's', 'w', 0);
-    myGraph.InsEdge(1, 't', 'u', 1);
-    myGraph.InsEdge(1, 't', 'v', 0);
-    myGraph.InsEdge(1, 'u', 'v', 0);
-    myGraph.InsEdge(1, 'v', 's', 0);
-    myGraph.InsEdge(1, 'v', 'w', 0);
-    myGraph.InsEdge(1, 'w', 'x', 0);
-    myGraph.InsEdge(1, 'x', 'z', 0);
-    myGraph.InsEdge(1, 'z', 'y', 0);
-    myGraph.InsEdge(1, 'z', 'w', 0);
-    myGraph.InsEdge(1, 'y', 'x', 0);
+    myGraph.InsEdge(4, 'a', 'b', 1);
+    myGraph.InsEdge(8, 'a', 'h', 1);
+    myGraph.InsEdge(8, 'b', 'c', 1);
+    myGraph.InsEdge(11, 'b', 'h', 1);
+    myGraph.InsEdge(7, 'c', 'd', 1);
+    myGraph.InsEdge(4, 'c', 'f', 1);
+    myGraph.InsEdge(2, 'c', 'i', 1);
+    myGraph.InsEdge(9, 'd', 'e', 1);
+    myGraph.InsEdge(14, 'd', 'f', 1);
+    myGraph.InsEdge(10, 'e', 'f', 1);
+    myGraph.InsEdge(2, 'f', 'g', 1);
+    myGraph.InsEdge(6, 'g', 'i', 1);
+    myGraph.InsEdge(1, 'g', 'h', 1);
+    myGraph.InsEdge(7, 'h', 'i', 1);
 
-    myGraph.printGraph();
+    //myGraph.printGraph();
 
     cout<<"\n";
-    myGraph.DFS('s');
+    myGraph.Dijkstra('a', 'e');
 
 }
