@@ -245,17 +245,34 @@ void CGraphCharNum::FloydWarshall(){
         for(int j = 0; j < _size; j++) fw[i][j] = INF; 
         fw[i][i] = 0;
     }
-    for(int i = 0; i < _size; i++){
+    for(int i = 0; i < _size; i++){//matrix already initialized
         for(int j = 0; j <_size; j++){
-            for(auto it = nodes[i]->edges.begin(); it != nodes[i]->edges.end(); i++){
+            for(auto it = nodes[i]->edges.begin(); it != nodes[i]->edges.end(); ++it){
                 if((*it)->m_nodes[1] == nodes[j]){
                     fw[i][j] = (*it)->m_v;
                 }
             }
         }
     }
-
-
+    for(int k = 0; k < _size; k++){
+        for(int i = 0; i < _size; i++){
+            for(int j = 0; j < _size; j++){
+                fw[i][j] = min(fw[i][j], fw[i][k] + fw[k][j]);
+            }
+        }
+    }
+    cout<<" - ";
+    for(int i = 0; i < _size; i++){
+        cout<<setw(2)<<nodes[i]->m_v<<" ";
+    }
+    cout<<"\n";
+    for(int i = 0; i < _size; i++){
+        cout<<setw(2)<<nodes[i]->m_v<<" ";
+        for(int j = 0; j < _size; j++){
+            cout<<setw(2)<<fw[i][j]<<" ";
+        }
+        cout<<"\n";
+    }
 }
 
 void CGraphCharNum::Prim(N value){
@@ -391,6 +408,6 @@ int main(){
     //myGraph.printGraph();
 
     cout<<"\n";
-    myGraph.Dijkstra('a', 'e');
+    myGraph.FloydWarshall();
 
 }
