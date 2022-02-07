@@ -176,8 +176,9 @@ void CGraph<_N, _E>::printGraph(){
 
 struct CGraphCharNum : public CGraph<char,int>
 {
-    //Shortest path algorithm
+    //Shortest path algorithms
     void Dijkstra(N start, N end);
+    void FloydWarshall();
 
     //Minimum Spanning Tree Algorithms
     void Prim(N node_value);
@@ -214,8 +215,8 @@ void CGraphCharNum::Dijkstra(N start, N end){
         nodes[pos_pair]->component = 1;
         for(auto it = nodes[pos_pair]->edges.begin(); it != nodes[pos_pair]->edges.end(); ++it){
             if(!(*it)->m_nodes[1]->component){
-                for(int i = 0; i < _size; i++){
-                    if(nodes[i] == (*it)->m_nodes[1]){
+                for(int i = 0; i < _size; i++){//Finding pos of it->m_nodes[1]
+                    if(nodes[i] == (*it)->m_nodes[1]){ 
                         int cur_distance = node_verifier[pos_pair][0] + (*it)->m_v;
                         if(cur_distance < node_verifier[i][0]){ node_verifier[i][0] = cur_distance; node_verifier[i][1] = pos_pair; }
                     }
@@ -235,12 +236,34 @@ void CGraphCharNum::Dijkstra(N start, N end){
     }
 }
 
+void CGraphCharNum::FloydWarshall(){
+    const int _size = nodes.size();
+    int** fw = new int*[_size];
+    for(int i = 0; i < _size; i++){
+        nodes[i]->component = INF;
+        fw[i] = new int[_size];
+        for(int j = 0; j < _size; j++) fw[i][j] = INF; 
+        fw[i][i] = 0;
+    }
+    for(int i = 0; i < _size; i++){
+        for(int j = 0; j <_size; j++){
+            for(auto it = nodes[i]->edges.begin(); it != nodes[i]->edges.end(); i++){
+                if((*it)->m_nodes[1] == nodes[j]){
+                    fw[i][j] = (*it)->m_v;
+                }
+            }
+        }
+    }
+
+
+}
+
 void CGraphCharNum::Prim(N value){
     Node* p = nullptr;
     if(!FindNode(value, p)) return;
     for(int i = 0; i < nodes.size(); i++) nodes[i]->component = 0;
     vector<Node*> visited_nodes;
-    vector<Edge*> prim_path;
+    vector<Edge*> prim_path; 
     p->component = 1;
     visited_nodes.push_back(p);
     while(visited_nodes.size() != nodes.size()){
